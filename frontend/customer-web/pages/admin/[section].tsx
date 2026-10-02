@@ -1,0 +1,1 @@
+import { useRouter } from 'next/router'; import { RoleWorkspace } from '../../components/RoleWorkspace'; export default function AdminSection(){const r=useRouter();return <RoleWorkspace role="ADMIN" section={typeof r.query.section==='string'?r.query.section:''}/>}

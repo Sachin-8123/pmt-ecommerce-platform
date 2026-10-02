@@ -1,0 +1,2 @@
+import Link from 'next/link'; import { getCategoryImage } from '../lib/images'; import type { Category } from '../lib/types';
+export function CategoryCard({ category }: { category: Category }) { const categoryImage = getCategoryImage(category); return <Link href={`/products?categoryId=${category.id}`} className="category-card"><span className="category-mark"><img src={categoryImage} alt="" /></span><div><h3>{category.name}</h3><p>{category.description || 'Explore products in this collection'}</p></div><span aria-hidden>→</span></Link>; }

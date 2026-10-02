@@ -1,0 +1,2 @@
+import { Layout } from '../components/Layout'; import { RoleGuard } from '../components/RoleGuard'; import { useAuth } from '../lib/auth';
+export default function ProfilePage(){const {user}=useAuth();return <Layout><RoleGuard role="CUSTOMER"><section className="auth-card"><p className="eyebrow">Customer profile</p><h1>{user?.name}</h1><p className="auth-description">{user?.email}</p><p className="auth-description">Your profile is verified from the existing PMT authentication API. Profile editing is not available from the backend yet.</p></section></RoleGuard></Layout>}

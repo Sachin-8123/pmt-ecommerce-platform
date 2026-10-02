@@ -1,0 +1,49 @@
+node_modules/
+.env
+.env.local
+.env.*.local
+.DS_Store
+.next/
+dist/
+coverage/
+.vscode/
+npm-debug.log
+yarn-error.log
+
+# Frontend
+frontend/customer-web/node_modules/
+frontend/customer-web/.next/
+
+# Backend
+backend/api/node_modules/
+backend/api/dist/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# System
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS files
+*.swp
+
+# Misc
+coverage/

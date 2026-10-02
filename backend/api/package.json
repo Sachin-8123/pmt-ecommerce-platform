@@ -1,0 +1,38 @@
+{
+  "name": "pmt-api",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node dist/main.js",
+    "start:dev": "ts-node-dev --respawn --transpile-only src/main.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "test:maps": "ts-node src/maps/test-maps.ts"
+  },
+  "dependencies": {
+    "@nestjs/common": "^9.0.0",
+    "@nestjs/core": "^9.0.0",
+    "@nestjs/jwt": "^10.2.0",
+    "@nestjs/passport": "^10.0.3",
+    "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/platform-socket.io": "^9.4.3",
+    "@nestjs/websockets": "^9.4.3",
+    "@prisma/client": "^5.0.0",
+    "bcrypt": "^5.1.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.4",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.1",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.0.0",
+    "socket.io": "^4.8.3"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/node": "^18.0.0",
+    "@types/passport-jwt": "^4.0.1",
+    "prisma": "^5.0.0",
+    "socket.io-client": "^4.8.3",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.0.0"
+  }
+}

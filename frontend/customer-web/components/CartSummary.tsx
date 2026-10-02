@@ -1,0 +1,2 @@
+import Link from 'next/link'; import { money } from '../lib/api';
+export function CartSummary({ subtotal, onClear, busy }: { subtotal: number; onClear: () => void; busy: boolean }) { return <aside className="cart-summary"><p className="eyebrow">Cart total</p><h2>{money(subtotal)}</h2><p>Final pricing and availability are confirmed by PMT at checkout.</p><Link className="button full cart-checkout" href="/checkout">Checkout</Link><button className="outline-button" disabled={busy} onClick={onClear}>Clear cart</button></aside>; }
