@@ -25,4 +25,4 @@ The API must be running on port 5000 (or the URL above) and configured with its 
 
 `/login` provides category navigation for Customer, Vendor, Delivery Partner, Staff and Admin. Each category uses the same `POST /api/auth/login` endpoint and then reads `GET /api/auth/me`; the returned backend role determines access. The frontend never trusts the selected category as authorization.
 
-Dashboard placeholders are protected at `/vendor/dashboard`, `/delivery/dashboard`, `/staff/dashboard`, and `/admin/dashboard`. Backend RBAC remains the security boundary for all API data and operations. Public `/register` remains customer-only because the existing backend registration endpoint creates the default `CUSTOMER` role.
+Dashboard placeholders are protected at `/vendor/dashboard`, `/delivery/dashboard`, `/staff/dashboard`, and `/admin/dashboard`. Backend RBAC remains the security boundary for all API data and operations. Public `/register` supports Customer, Vendor, Delivery Partner, Staff, and Admin accounts.

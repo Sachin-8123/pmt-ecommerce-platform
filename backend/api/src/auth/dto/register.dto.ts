@@ -2,8 +2,8 @@ import { IsEmail, IsIn, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, Mi
 
 export class RegisterDto {
   @IsOptional()
-  @IsIn(['CUSTOMER', 'VENDOR', 'DELIVERY_PARTNER'])
-  role?: 'CUSTOMER' | 'VENDOR' | 'DELIVERY_PARTNER';
+  @IsIn(['CUSTOMER', 'VENDOR', 'DELIVERY_PARTNER', 'STAFF', 'ADMIN'])
+  role?: 'CUSTOMER' | 'VENDOR' | 'DELIVERY_PARTNER' | 'STAFF' | 'ADMIN';
 
   @IsString()
   @IsNotEmpty()

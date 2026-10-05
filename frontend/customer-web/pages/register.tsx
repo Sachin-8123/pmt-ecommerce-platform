@@ -4,14 +4,15 @@ import { useRouter } from 'next/router';
 import { Layout } from '../components/Layout';
 import { ApiError, api } from '../lib/api';
 import { useAuth } from '../lib/auth';
-import type { User } from '../lib/types';
+import { roleMeta } from '../lib/roles';
+import type { User, UserRole } from '../lib/types';
 
 type AuthResponse = { accessToken: string; user: User };
 
 export default function RegisterPage() {
 	const router = useRouter();
 	const { signIn } = useAuth();
-	const [accountType, setAccountType] = useState<'CUSTOMER' | 'VENDOR' | 'DELIVERY_PARTNER'>('CUSTOMER');
+	const [accountType, setAccountType] = useState<UserRole>('CUSTOMER');
 	const [form, setForm] = useState({ name: '', email: '', phone: '', password: '', businessName: '', vehicleType: '', vehicleNumber: '' });
 	const [error, setError] = useState('');
 	const [busy, setBusy] = useState(false);
@@ -26,10 +27,7 @@ export default function RegisterPage() {
 				body: JSON.stringify({ ...form, role: accountType }),
 			});
 			signIn(result.accessToken, result.user);
-			const destination = accountType === 'VENDOR'
-				? '/vendor/dashboard'
-				: accountType === 'DELIVERY_PARTNER' ? '/delivery/dashboard' : '/';
-			router.push(destination);
+			router.push(roleMeta[accountType].homePath);
 		} catch (e) {
 			setError(e instanceof ApiError ? e.message : 'Unable to create your account.');
 		} finally {
@@ -60,12 +58,14 @@ export default function RegisterPage() {
 					Account type
 					<select
 						value={accountType}
-						onChange={(event) => setAccountType(event.target.value as typeof accountType)}
+						onChange={(event) => setAccountType(event.target.value as UserRole)}
 						style={{ width: '100%', padding: 11, border: '1px solid var(--line)', borderRadius: 8, background: '#fff', color: 'var(--ink)' }}
 					>
 						<option value="CUSTOMER">Customer</option>
 						<option value="VENDOR">Vendor</option>
 						<option value="DELIVERY_PARTNER">Delivery Partner</option>
+						<option value="STAFF">Staff</option>
+						<option value="ADMIN">Admin</option>
 					</select>
 				</label>
 					<form onSubmit={submit}>
@@ -83,14 +83,16 @@ export default function RegisterPage() {
 						<small>Phone must contain 10–15 digits. Password must be at least 8 characters.</small>
 						{error && <p className="form-error">{error}</p>}
 						<button className="button full" disabled={busy}>
-							{busy ? 'Creating account…' : `Create ${accountType === 'DELIVERY_PARTNER' ? 'Delivery Partner' : accountType === 'VENDOR' ? 'Vendor' : 'Customer'} account`}
+							{busy ? 'Creating account…' : `Create ${roleMeta[accountType].label} account`}
 						</button>
 					</form>
 				<p className="login-register">
 					Already have an account? Login as{' '}
 					<Link href="/login/customer">Customer</Link> ·{' '}
 					<Link href="/login/vendor">Vendor</Link> ·{' '}
-					<Link href="/login/delivery">Delivery Partner</Link>
+					<Link href="/login/delivery">Delivery Partner</Link> ·{' '}
+					<Link href="/login/staff">Staff</Link> ·{' '}
+					<Link href="/login/admin">Admin</Link>
 				</p>
 			</section>
 		</Layout>
