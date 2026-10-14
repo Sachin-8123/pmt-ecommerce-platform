@@ -23,7 +23,7 @@ function request(
   path: string,
   body?: unknown,
   token?: string,
-): Promise<{ status: number; data: unknown }> {
+): Promise<{ status: number; data: unknown; sessionToken?: string }> {
   return new Promise((resolve, reject) => {
     const url = new URL(BASE_URL + path);
     const payload = body ? JSON.stringify(body) : undefined;
@@ -40,7 +40,15 @@ function request(
         res.on('end', () => {
           let data: unknown = raw;
           try { data = JSON.parse(raw); } catch { /* ignore */ }
-          resolve({ status: res.statusCode, data });
+          const setCookie = res.headers['set-cookie'];
+          const sessionCookie = Array.isArray(setCookie)
+            ? setCookie.find((cookie: string) => cookie.startsWith('pmt_access_token='))?.split(';', 1)[0]
+            : undefined;
+          resolve({
+            status: res.statusCode,
+            data,
+            sessionToken: sessionCookie?.slice('pmt_access_token='.length),
+          });
         });
       },
     );
@@ -68,10 +76,10 @@ function noPasswordHash(name: string, data: unknown) {
 async function register(email: string, phone: string) {
   const res = await request('POST', '/api/auth/register', { name: 'Test', email, phone, password: 'Password123' });
   const d = res.data as any;
-  if (d?.accessToken) return { token: d.accessToken as string, userId: d.user?.id as string };
+  if (res.sessionToken) return { token: res.sessionToken, userId: d?.user?.id as string };
   const login = await request('POST', '/api/auth/login', { email, password: 'Password123' });
   const ld = login.data as any;
-  return { token: ld.accessToken as string, userId: ld.user?.id as string };
+  return { token: login.sessionToken || '', userId: ld?.user?.id as string };
 }
 
 async function runTests() {
@@ -110,7 +118,7 @@ async function runTests() {
   await request('PATCH', `/api/users/${adminCreds.userId}/role`, { role: 'ADMIN' }, adminCreds.token).catch(() => null);
 
   const adminLoginRes = await request('POST', '/api/auth/login', { email: adminEmail, password: 'Password123' });
-  const adminToken = (adminLoginRes.data as any)?.accessToken as string;
+  const adminToken = adminLoginRes.sessionToken || '';
 
   const deliveriesRes = await request('GET', '/api/admin/deliveries?limit=5', undefined, adminToken);
   const deliveries = (deliveriesRes.data as any)?.data as any[] || [];

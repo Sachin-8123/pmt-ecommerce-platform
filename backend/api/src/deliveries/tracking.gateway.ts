@@ -15,7 +15,24 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TrackingService } from './tracking.service';
 import { JoinDeliveryDto, LeaveDeliveryDto, SocketLocationUpdateDto } from './dto/update-location.dto';
 
-@WebSocketGateway({ namespace: '/tracking', cors: { origin: true, credentials: true } })
+const getSocketOrigins = () => {
+  const configuredOrigins = (process.env.FRONTEND_URL || '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+
+  return Array.from(
+    new Set([
+      ...configuredOrigins,
+      'http://localhost:3000',
+      'http://127.0.0.1:3000',
+      'http://localhost:3001',
+      'http://127.0.0.1:3001',
+    ]),
+  );
+};
+
+@WebSocketGateway({ namespace: '/tracking', cors: { origin: getSocketOrigins(), credentials: true } })
 @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }))
 export class TrackingGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()

@@ -1,11 +1,11 @@
 const configuredApiUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
 
-// The project-level environment example uses http://localhost:5000, while
-// this app owns routes under /api. Accept either form so client requests never
-// accidentally target /categories or /products at the backend root.
+// Production builds must set NEXT_PUBLIC_API_URL to the deployed backend.
+// Local development keeps a safe fallback to the API default port.
 export const API_URL = configuredApiUrl.endsWith('/api')
   ? configuredApiUrl
   : `${configuredApiUrl}/api`;
+export const COOKIE_SESSION = 'cookie-session';
 
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
@@ -17,7 +17,12 @@ export async function api<T>(path: string, options: RequestInit = {}, token?: st
   const headers = new Headers(options.headers);
   headers.set('Content-Type', 'application/json');
   if (token) headers.set('Authorization', `Bearer ${token}`);
-  const response = await fetch(`${API_URL}${path}`, { ...options, headers });
+  if (token === COOKIE_SESSION) headers.delete('Authorization');
+  const response = await fetch(`${API_URL}${path}`, {
+    ...options,
+    credentials: options.credentials || 'include',
+    headers,
+  });
   const text = await response.text();
   let body: any = null;
   try { body = text ? JSON.parse(text) : null; } catch { /* non-JSON error response */ }

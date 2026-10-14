@@ -7,7 +7,7 @@ import { useAuth } from '../lib/auth';
 import { roleMeta } from '../lib/roles';
 import type { User, UserRole } from '../lib/types';
 
-type AuthResponse = { accessToken: string; user: User };
+type AuthResponse = { user: User };
 
 export default function RegisterPage() {
 	const router = useRouter();
@@ -26,7 +26,7 @@ export default function RegisterPage() {
 				method: 'POST',
 				body: JSON.stringify({ ...form, role: accountType }),
 			});
-			signIn(result.accessToken, result.user);
+			signIn(result.user);
 			router.push(roleMeta[accountType].homePath);
 		} catch (e) {
 			setError(e instanceof ApiError ? e.message : 'Unable to create your account.');

@@ -31,7 +31,7 @@ function request(
   path: string,
   body?: unknown,
   token?: string,
-): Promise<{ status: number; data: unknown }> {
+): Promise<{ status: number; data: unknown; sessionToken?: string }> {
   return new Promise((resolve, reject) => {
     const url = new URL(BASE_URL + path);
     const payload = body ? JSON.stringify(body) : undefined;
@@ -47,7 +47,15 @@ function request(
         res.on('end', () => {
           let data: unknown = raw;
           try { data = JSON.parse(raw); } catch { /* ignore */ }
-          resolve({ status: res.statusCode, data });
+          const setCookie = res.headers['set-cookie'];
+          const sessionCookie = Array.isArray(setCookie)
+            ? setCookie.find((cookie: string) => cookie.startsWith('pmt_access_token='))?.split(';', 1)[0]
+            : undefined;
+          resolve({
+            status: res.statusCode,
+            data,
+            sessionToken: sessionCookie?.slice('pmt_access_token='.length),
+          });
         });
       },
     );
@@ -81,15 +89,14 @@ function noSecrets(name: string, data: unknown) {
 // ---------------------------------------------------------------------------
 async function loginOrRegister(email: string, phone: string): Promise<string> {
   const reg = await request('POST', '/api/auth/register', { name: 'MapsTester', email, phone, password: 'Password123' });
-  const rd = reg.data as any;
-  if (rd?.accessToken) return rd.accessToken;
+  if (reg.sessionToken) return reg.sessionToken;
   const login = await request('POST', '/api/auth/login', { email, password: 'Password123' });
-  return (login.data as any)?.accessToken ?? '';
+  return login.sessionToken ?? '';
 }
 
 async function login(email: string): Promise<string> {
   const response = await request('POST', '/api/auth/login', { email, password: 'FixturePass123' });
-  const token = (response.data as any)?.accessToken;
+  const token = response.sessionToken;
   if (response.status !== 200 || typeof token !== 'string') {
     throw new Error(`Fixture login failed for ${email}: HTTP ${response.status}`);
   }

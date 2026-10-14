@@ -15,19 +15,21 @@ Authentication API:
     { "name": "Sachin", "email": "sachin@example.com", "phone": "9876543210", "password": "Password123" }
 
   POST /api/auth/login
-    { "email": "sachin@example.com", "password": "Password123" }
+    { "email": "sachin@example.com", "password": "Password123", "rememberMe": false }
 
   GET /api/auth/me
-    Send the login or registration token as:
-    Authorization: Bearer <accessToken>
+    Login and registration set an HttpOnly `pmt_access_token` cookie for browser sessions and continue returning `accessToken` for non-browser integrations.
+    Browser requests should send credentials and use the HttpOnly cookie; do not persist the bearer token in browser storage.
+    `POST /api/auth/logout` clears the session cookie.
 
-JWT authentication uses the JWT_SECRET environment variable and tokens expire after one hour.
+JWT authentication uses the JWT_SECRET environment variable. Sessions expire after one hour by default or 30 days when `rememberMe` is true. Cookies are HttpOnly, SameSite=Lax, and Secure in production. Bearer-token authentication remains supported for integrations.
 Validation errors return HTTP 400, duplicate email or phone returns HTTP 409, and invalid or missing credentials return HTTP 401.
 
 Test locally with PowerShell:
   $body = @{ name = 'Sachin'; email = 'sachin@example.com'; phone = '9876543210'; password = 'Password123' } | ConvertTo-Json
-  $auth = Invoke-RestMethod http://localhost:5000/api/auth/register -Method Post -ContentType 'application/json' -Body $body
-  Invoke-RestMethod http://localhost:5000/api/auth/me -Headers @{ Authorization = "Bearer $($auth.accessToken)" }
+  Invoke-RestMethod http://localhost:5000/api/auth/register -Method Post -ContentType 'application/json' -Body $body -SessionVariable pmtSession
+  Invoke-RestMethod http://localhost:5000/api/auth/me -WebSession $pmtSession
+  Invoke-RestMethod http://localhost:5000/api/auth/logout -Method Post -WebSession $pmtSession
 
 Vendor API:
   POST /api/vendors
@@ -214,4 +216,3 @@ Test maps locally with PowerShell:
 
 Run automated maps tests (requires running server):
   npx ts-node src/maps/test-maps.ts
-

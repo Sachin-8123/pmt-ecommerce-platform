@@ -98,7 +98,7 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email or password');
     }
 
-    return this.createAuthResponse(user);
+    return this.createAuthResponse(user, Boolean(loginDto.rememberMe));
   }
 
   toSafeUser(user: User): SafeUser {
@@ -106,13 +106,16 @@ export class AuthService {
     return safeUser;
   }
 
-  private createAuthResponse(user: User) {
+  private createAuthResponse(user: User, rememberMe = false) {
     const safeUser = this.toSafeUser(user);
-    const accessToken = this.jwtService.sign({
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-    });
+    const accessToken = this.jwtService.sign(
+      {
+        sub: user.id,
+        email: user.email,
+        role: user.role,
+      },
+      { expiresIn: rememberMe ? '30d' : '1h' },
+    );
 
     return { accessToken, user: safeUser };
   }
